@@ -1,50 +1,40 @@
 package org.openapitools.api;
 
-import org.openapitools.model.ErrorResponse;
-import org.openapitools.model.PasswordUpdate;
-import org.openapitools.model.SuccessResponse;
 import org.openapitools.model.UserRegistration;
 import org.openapitools.model.UserResponse;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.openapitools.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
+import java.net.URI;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import jakarta.annotation.Generated;
+@RestController
+@RequestMapping("/users")
+public class UsersApiController {
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-02-17T10:31:07.156757200-05:00[America/Bogota]", comments = "Generator version: 7.7.0")
-@Controller
-@RequestMapping("${openapi.aPIDeUsuarios.base-path:}")
-public class UsersApiController implements UsersApi {
+    private final UserService userService;
 
-    private final NativeWebRequest request;
-
-    @Autowired
-    public UsersApiController(NativeWebRequest request) {
-        this.request = request;
+    public UsersApiController(UserService userService) {
+        this.userService = userService;
     }
 
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return Optional.ofNullable(request);
+    @PostMapping
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistration request) {
+        UserResponse response = userService.createUser(request);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
+        return userService.getUser(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

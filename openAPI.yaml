@@ -64,18 +64,24 @@ paths:
       responses:
         '200':
           description: Lista de usuarios obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
         '401':
           description: No autorizado
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Prohibido
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Error interno del servidor
           content:
@@ -102,6 +108,10 @@ paths:
       responses:
         '200':
           description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '401':
           description: No autorizado
           content:
@@ -141,51 +151,24 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
       responses:
         '200':
           description: Usuario actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '400':
           description: Datos de entrada inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Prohibido
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Usuario no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflicto al actualizar
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Error interno del servidor
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '503':
-          description: Servicio no disponible
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
     delete:
       summary: Borrar un usuario por ID
       operationId: deleteUser
@@ -198,72 +181,19 @@ paths:
       responses:
         '200':
           description: Usuario eliminado correctamente
-        '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Prohibido
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Usuario no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '503':
-          description: Servicio no disponible
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /users/{id}/password:
-    patch:
-      summary: Actualizar la contraseña de un usuario
-      operationId: updateUserPassword
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PasswordUpdate'
-      responses:
-        '200':
-          description: Contraseña actualizada exitosamente
-        '400':
-          description: Datos de entrada inválidos
-        '401':
-          description: No autorizado
-        '403':
-          description: Prohibido
         '404':
           description: Usuario no encontrado
         '500':
           description: Error interno del servidor
-        '503':
-          description: Servicio no disponible
 
 components:
   schemas:
+    Rol:
+      type: string
+      enum:
+        - user
+        - admin
+
     UserRegistration:
       type: object
       required:
@@ -277,32 +207,13 @@ components:
         password:
           type: string
           minLength: 8
-          pattern: "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$"
         fullName:
           type: string
-          maxLength: 100
         dateBirth:
           type: string
           format: date
         rol:
-          type: string
-          enum:
-            - user
-            - admin
-          default: user
-
-    PasswordUpdate:
-      type: object
-      required:
-        - currentPassword
-        - newPassword
-      properties:
-        currentPassword:
-          type: string
-        newPassword:
-          type: string
-          minLength: 8
-          pattern: "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$"
+          $ref: '#/components/schemas/Rol'
 
     UserResponse:
       type: object
@@ -310,7 +221,6 @@ components:
         - id
         - email
         - fullName
-        - rol
       properties:
         id:
           type: string
@@ -318,25 +228,13 @@ components:
           type: string
         fullName:
           type: string
-        dateBirth:
-          type: string
-          format: date
         rol:
-          type: string
+          $ref: '#/components/schemas/Rol'
 
     ErrorResponse:
       type: object
-      required:
-        - error
-        - message
       properties:
         error:
           type: string
         message:
           type: string
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
