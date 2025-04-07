@@ -7,52 +7,81 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    // POST /users: Registrar un nuevo usuario
+    private final List<UserResponse> users = new ArrayList<>();
     @PostMapping
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistration request) {
-        // Simulación de la creación de un usuario
+
         UserResponse userResponse = new UserResponse()
-                .id("1") // Simulación de ID generado
+                .id("123")
                 .email(request.getEmail())
                 .fullName(request.getFullName())
-                .dateBirth(request.getDateBirth()) // Asignar dateBirth
+                .dateBirth(request.getDateBirth())
                 .rol(request.getRol().toString());
 
-        // Construir la URL del nuevo recurso
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(userResponse.getId())
                 .toUri();
 
-        // Devolver la respuesta con el código 201 y la URL en la cabecera Location
+
         return ResponseEntity.created(location).body(userResponse);
     }
 
-    // GET /users/{id}: Obtener un usuario por ID
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
-        // Simulación de la obtención de un usuario por ID
         UserResponse userResponse = new UserResponse()
                 .id(id)
-                .email("ejemplo@uniquindio.edu.co")
+                .email("maria@uniquindio.edu.co")
                 .fullName("Maria")
                 .rol("user");
 
         return ResponseEntity.ok(userResponse);
     }
 
-    // PUT /users/{id}: Actualizar un usuario por ID
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Validar parámetros de paginación
+        if (page < 1 || size < 1) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Calcular el índice de inicio y fin para la paginación
+        int start = (page - 1) * size;
+        int end = Math.min(start + size, users.size());
+
+        // Verificar si el índice de inicio es válido
+        if (start >= users.size()) {
+            return ResponseEntity.ok(List.of()); // Devuelve una lista vacía si no hay elementos
+        }
+
+        // Obtener la sublista paginada
+        List<UserResponse> paginatedUsers = users.subList(start, end);
+
+        // Devolver la lista paginada
+        return ResponseEntity.ok(paginatedUsers);
+    }
+
+
+
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable String id, @Valid @RequestBody UserRegistration request) {
-        // Simulación de la actualización de un usuario
+
         UserResponse userResponse = new UserResponse()
                 .id(id)
                 .email(request.getEmail())
@@ -62,10 +91,10 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    // DELETE /users/{id}: Eliminar un usuario por ID
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        // Simulación de la eliminación de un usuario
+
         return ResponseEntity.noContent().build();
     }
 }

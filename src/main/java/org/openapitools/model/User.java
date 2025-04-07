@@ -1,19 +1,33 @@
 package org.openapitools.model;
 
+import lombok.EqualsAndHashCode;
 import org.openapitools.enums.Rol;
 import org.openapitools.enums.UserStatus;
+import org.springframework.data.annotation.Id;
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 
 public class User {
+    @Id
+    @EqualsAndHashCode.Include
     private String id;
+    @Email
+    @NotBlank
     private String email;
+    @NotBlank
+    @Size(min = 8)
     private String password;
+
+    @NotBlank
     private String fullName;
+    @Past
     private LocalDate dateBirth;
     private Rol rol;
     private UserStatus status;
 
     // Getters y Setters
+
     public String getId() {
         return id;
     }

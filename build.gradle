@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
     implementation 'org.springframework.security:spring-security-crypto'
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
