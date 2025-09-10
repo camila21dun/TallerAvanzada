@@ -14,6 +14,7 @@ import java.net.URI;
 @RequestMapping("/users")
 public class UserController {
 
+    
     // POST /users: Registrar un nuevo usuario
     @PostMapping
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistration request) {
